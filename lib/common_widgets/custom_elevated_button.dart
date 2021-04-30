@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CustomRaisedButton extends StatelessWidget {
-  CustomRaisedButton({
+class CustomElevatedButton extends StatelessWidget {
+  CustomElevatedButton({
     this.child,
     this.color,
     this.borderRadius: 2.0,
