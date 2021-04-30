@@ -4,33 +4,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:time_tracker/services/auth.dart';
 
-class SignInBloc {
+class SignInManager {
   final AuthBase auth;
-  SignInBloc({
+  SignInManager({
     @required this.auth,
+    @required this.isLoading,
   });
 
-  final StreamController<bool> _isLoadingController = StreamController<bool>();
-
-  Stream<bool> get isLoadingStream => _isLoadingController.stream;
-
-  void dispose() {
-    _isLoadingController.close();
-  }
-
-  void _setIsLoading({
-    @required bool isLoading,
-  }) =>
-      _isLoadingController.sink.add(isLoading);
+  final ValueNotifier<bool> isLoading;
 
   Future<User> _signIn(Future<User> Function() signInMethod) async {
     try {
-      _setIsLoading(isLoading: true);
+      isLoading.value = true;
       return await signInMethod();
     } catch (error) {
       rethrow;
     } finally {
-      _setIsLoading(isLoading: false);
+      isLoading.value = false;
     }
   }
 
