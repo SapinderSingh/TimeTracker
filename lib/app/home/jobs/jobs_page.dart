@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker/app/home/jobs/edit_job_page.dart';
+import 'package:time_tracker/app/home/jobs/job_list_tile.dart';
 import 'package:time_tracker/app/home/models/job.dart';
 import 'package:time_tracker/common_widgets/show_alert_dialog.dart';
-import 'package:time_tracker/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker/services/auth.dart';
 import 'package:time_tracker/services/database.dart';
 
@@ -34,35 +34,12 @@ class JobsPage extends StatelessWidget {
     }
   }
 
-  Future<void> _createJob({BuildContext context}) async {
-    try {
-      final Database database = Provider.of<Database>(
-        context,
-        listen: false,
-      );
-      await database.createJob(
-        job: Job(
-          name: 'Playing',
-          ratePerHour: 20,
-        ),
-      );
-    } on FirebaseException catch (error) {
-      showExceptionAlertDialog(
-        context,
-        title: 'Operation Failed',
-        exception: error,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildContents(context: context),
+      body: _buildContent(context: context),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _createJob(
-          context: context,
-        ),
+        onPressed: () => EditJobPage.show(context),
         child: Icon(
           Icons.add,
         ),
@@ -86,16 +63,21 @@ class JobsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContents({BuildContext context}) {
+  Widget _buildContent({BuildContext context}) {
     final database = Provider.of<Database>(context, listen: false);
     return StreamBuilder<List<Job>>(
+      stream: database.jobsStream(),
       builder: (_, snapshot) {
         if (snapshot.hasData) {
           final jobs = snapshot.data;
           final children = jobs
               .map(
-                (job) => Text(
-                  job.name,
+                (job) => JobListTile(
+                  job: job,
+                  onTap: () => EditJobPage.show(
+                    context,
+                    job: job,
+                  ),
                 ),
               )
               .toList();
@@ -112,7 +94,6 @@ class JobsPage extends StatelessWidget {
           );
         }
       },
-      stream: database.jobsStream(),
     );
   }
 }
