@@ -6,6 +6,7 @@ import 'package:time_tracker/services/firestore_service.dart';
 abstract class Database {
   Future<void> setJob({Job job});
   Stream<List<Job>> jobsStream();
+  Future<void> deleteJob(Job job);
 }
 
 String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
@@ -25,6 +26,14 @@ class FirestoreDatabase implements Database {
           jobId: job.id,
         ),
         data: job.toMap(),
+      );
+
+  @override
+  Future<void> deleteJob(Job job) => _service.deleteData(
+        path: ApiPath.job(
+          uid: uid,
+          jobId: job.id,
+        ),
       );
 
   @override
